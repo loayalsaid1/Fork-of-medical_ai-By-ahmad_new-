@@ -44,11 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rag_ai',
+    # 'rag_ai',  # Commented out - disable RAG AI features
     "users.apps.UsersConfig",
     "edu",
     "web",
-    "pgvector.django",
+    # "pgvector.django",  # Commented out - disable vector database
     'rest_framework_simplejwt',
     "cloudinary",
     "cloudinary_storage",

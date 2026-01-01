@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("users.urls")),
-    path('', include("rag_ai.urls")),
+    # path('', include("rag_ai.urls")),  # Commented out - disable RAG AI endpoints
     path("", include("edu.urls")),
     
     path("", include("web.urls")),
