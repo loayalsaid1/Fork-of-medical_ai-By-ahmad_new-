@@ -8,3 +8,5 @@ __pycache__/
 
 # Staticfiles (Django collectstatic output)
 staticfiles/
+
+my_identified_bugs.md

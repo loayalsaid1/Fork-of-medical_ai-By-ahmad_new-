@@ -14,6 +14,9 @@ from django.contrib.auth import authenticate, login, logout
 
 
 def landing_page(request):
+    # Redirect authenticated users to home
+    if request.session.get("access"):
+        return redirect("web_home")
     return render(request,"landing_page.html")
 
 API = settings.BASE_API_URL
@@ -37,6 +40,10 @@ def _headers(request):
 
 # web/views.py
 def register_view(request):
+    # Redirect authenticated users to home
+    if request.session.get("access"):
+        return redirect("web_home")
+    
     if request.method == "POST":
         payload = {
             "username": request.POST.get("username","").strip(),
@@ -75,6 +82,10 @@ def register_view(request):
 
 
 def login_view(request):
+    # Redirect authenticated users to home
+    if request.session.get("access"):
+        return redirect("web_home")
+    
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
@@ -1583,6 +1594,8 @@ def planner_task_create_htmx(request):
             headers=_headers(request),
             timeout=8,
         )
+        if r.status_code not in (200, 201):
+            return HttpResponse("<div class='alert alert-danger'>Failed to create task.</div>", status=502)
     except Exception:
         return HttpResponse("<div class='alert alert-danger'>Network error.</div>", status=502)
 
@@ -1615,29 +1628,35 @@ def planner_task_toggle_htmx(request, pk):
     )
 
     try:
-        requests.post(url, headers=_headers(request), timeout=8)
+        r = requests.post(url, headers=_headers(request), timeout=8)
+        if r.status_code not in (200, 201):
+            return HttpResponse("<div class='alert alert-danger'>Failed to update task.</div>", status=502)
     except Exception:
-        pass
+        return HttpResponse("<div class='alert alert-danger'>Network error.</div>", status=502)
 
-    # رجّع الليست لليوم المختار لو فيه
+    # Preserve date filter from request
     return planner_tasks_htmx(request)
 
 
 
 
 
-@require_http_methods(["DELETE", "POST"])
+@require_http_methods(["DELETE"])
 def planner_task_delete_htmx(request, pk):
     if not _require_auth(request):
         return HttpResponse("Auth", status=401)
     try:
-        requests.delete(
+        r = requests.delete(
             f"{API}/v1/edu/planner/tasks/{pk}/",
             headers=_headers(request),
             timeout=8,
         )
+        if r.status_code not in (200, 204):
+            return HttpResponse("<div class='alert alert-danger'>Failed to delete task.</div>", status=502)
     except Exception:
-        pass
+        return HttpResponse("<div class='alert alert-danger'>Network error.</div>", status=502)
+    
+    # Preserve date filter from request
     return planner_tasks_htmx(request)
 
 

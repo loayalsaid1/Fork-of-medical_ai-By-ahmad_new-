@@ -1,31 +1,30 @@
-{# expects: modules #}
-<div class="mb-2">
-  <button class="btn btn-link btn-sm p-0"
-          hx-get="{% url 'fc_nav_semesters' %}"
-          hx-target="#fc-nav"
-          hx-swap="innerHTML">
-    ← Back to semesters
-  </button>
+{# expects: modules, semester_name (optional) #}
+<div class="mb-3">
+  <a class="fc-back-btn"
+     hx-get="{% url 'fc_nav_semesters' %}"
+     hx-target="#fc-nav"
+     hx-swap="innerHTML">
+    ← Back
+  </a>
 </div>
 
-<div class="fc-title modules mb-2">
-  <span class="accent"></span>
-  <h6 class="m-0">Modules</h6>
-</div>
-<div class="list-group list-group-flush small fc-list">
+<div class="list-group fc-list">
   {% if modules %}
     {% for m in modules %}
       <button
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-        hx-get="{% url 'fc_panel_subjects' %}?module_id={{ m.id }}&module_name={{ m.name|urlencode }}"
+        hx-get="{% url 'fc_panel_subjects' %}?module_id={{ m.id }}&module_name={{ m.name|urlencode }}&semester_name={{ request.GET.semester_name|default:''|urlencode }}"
         hx-target="#fc-main-panel"
         hx-swap="innerHTML"
         hx-indicator="#fc-main-spin">
         <span>{{ m.name }}</span>
-        <span class="badge fc-badge">open</span>
+        <span class="fc-badge">›</span>
       </button>
     {% endfor %}
   {% else %}
-    <div class="text-muted small">No modules for this semester.</div>
+    <div class="fc-empty" style="padding: 2rem 1rem;">
+      <div style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;">📦</div>
+      <div class="small text-muted">No modules in this semester</div>
+    </div>
   {% endif %}
 </div>

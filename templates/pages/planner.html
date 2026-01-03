@@ -2,37 +2,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-3">
+<div class="container py-3" style="max-width: 1100px;">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h3 class="mb-0">Planner</h3>
-      <small class="text-muted">Track your study tasks</small>
+      <h3 class="mb-0 fw-bold" style="color: #1e293b;">Study Planner</h3>
+      <small class="text-muted">Organize and track your study tasks</small>
     </div>
-    <div>
-      <button
-        class="btn btn-primary btn-sm"
-        hx-get="{% url 'web_planner_tasks' %}"
-        hx-target="#planner-tasks"
-        hx-swap="innerHTML">
-        Refresh
-      </button>
-    </div>
+    <a href="{% url 'web_home' %}" class="btn btn-outline-secondary btn-sm">← Back to Home</a>
   </div>
 
   <div class="row g-3">
     <div class="col-lg-4">
-      {# تقويم بسيط #}
-      {% include "components/planner/_calendar_strip.html" %}
-      {# فورم إضافة #}
+      {# Date filter #}
+      {% include "components/planner/_date_filter.html" %}
+      {# Add new task form #}
       {% include "components/planner/_new_task_form.html" %}
     </div>
     <div class="col-lg-8">
+      {# Hidden input to store current filter state #}
+      <input type="hidden" id="current-date-filter" value="">
+      
       <div id="planner-tasks"
            hx-get="{% url 'web_planner_tasks' %}"
            hx-trigger="load"
            hx-target="this"
            hx-swap="innerHTML">
-        <div class="text-muted small">Loading tasks…</div>
+        <div class="card shadow-sm border-0" style="border-radius: 16px; background: #ffffff;">
+          <div class="card-body p-4 text-center text-muted">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+            Loading tasks…
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,31 +1,36 @@
-{# expects: module_id, module_name, subjects #}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="fc-title subjects">
-    <span class="accent"></span>
-    <h5 class="m-0">{{ module_name }}</h5>
-  </div>
-  <button class="btn btn-link btn-sm"
-          hx-get="{% url 'fc_nav_semesters' %}"
-          hx-target="#fc-nav"
-          hx-swap="innerHTML">
-    ← Back to semesters
-  </button>
+{# expects: module_id, module_name, semester_name (optional), subjects #}
+<div class="fc-breadcrumb">
+  <span class="fc-breadcrumb-item">
+    {% if semester_name %}
+      <span>{{ semester_name }}</span>
+      <span class="fc-breadcrumb-separator">/</span>
+    {% endif %}
+    <span class="fc-breadcrumb-current">{{ module_name }}</span>
+  </span>
 </div>
 
-<div class="list-group list-group-flush small fc-list">
+<div class="mb-3">
+  <h5 class="mb-0" style="font-weight: 700; color: #111827;">Select Subject</h5>
+</div>
+
+<div class="list-group fc-list">
   {% if subjects %}
     {% for s in subjects %}
       <button
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-        hx-get="{% url 'fc_panel_chapters' %}?subject_id={{ s.id }}&subject_name={{ s.name|urlencode }}"
+        hx-get="{% url 'fc_panel_chapters' %}?subject_id={{ s.id }}&subject_name={{ s.name|urlencode }}&module_name={{ module_name|urlencode }}&semester_name={{ semester_name|urlencode }}"
         hx-target="#fc-main-panel"
         hx-swap="innerHTML"
         hx-indicator="#fc-main-spin">
         <span>{{ s.name }}</span>
-        <span class="badge fc-badge">chapters</span>
+        <span class="fc-badge">›</span>
       </button>
     {% endfor %}
   {% else %}
-    <div class="alert alert-secondary mb-0">No subjects for this module.</div>
+    <div class="fc-empty">
+      <div class="fc-empty-icon">📚</div>
+      <div class="fc-empty-title">No Subjects Available</div>
+      <div class="fc-empty-text">This module doesn't have any subjects yet.</div>
+    </div>
   {% endif %}
 </div>

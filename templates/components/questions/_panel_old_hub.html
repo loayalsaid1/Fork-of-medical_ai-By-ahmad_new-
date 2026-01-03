@@ -1,9 +1,9 @@
-<div class="qb-title exams mb-3">
-  <span class="accent"></span>
-  <h5 class="m-0">Old Exams</h5>
-</div>
 <div class="card-soft p-3">
-  <h5 class="mb-3">Old Exams</h5>
+  <div class="qb-title exams mb-3">
+    <span class="accent"></span>
+    <h5 class="m-0">Old Exams</h5>
+  </div>
+
   <div class="list-group list-group-flush small">
     <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
             hx-get="{% url 'q_panel_years' %}?module_id={{ module_id }}&source=old&kind=final"

@@ -1,15 +1,15 @@
 <div class="card-soft p-3">
-  <h5 class="mb-3">
-    {% if source == "old" %}
-      {% if kind == "final" %}Old Finals{% elif kind == "midterm" %}Old MidTerm{% elif kind == "tpl" %}Old TPL{% else %}Old Flipped{% endif %}
-    {% else %}
-      {% if kind == "final" %}Exam review – Finals{% elif kind == "midterm" %}Exam review – MidTerm{% else %}Exam review – TPL & Flipped{% endif %}
-    {% endif %}
-  </h5>
   <div class="qb-title years mb-3">
     <span class="accent"></span>
-    <h5 class="m-0">Years</h5>
+    <h5 class="m-0">
+      {% if source == "old" %}
+        {% if kind == "final" %}Old Finals{% elif kind == "midterm" %}Old MidTerm{% elif kind == "tpl" %}Old TPL{% else %}Old Flipped{% endif %}
+      {% else %}
+        {% if kind == "final" %}Exam Review – Finals{% elif kind == "midterm" %}Exam Review – MidTerm{% else %}Exam Review – TPL & Flipped{% endif %}
+      {% endif %}
+    </h5>
   </div>
+
   <div class="list-group list-group-flush small">
     {% for y in years %}
       <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"

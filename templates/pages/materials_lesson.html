@@ -74,72 +74,55 @@
 <div class="row g-3" id="lesson-layout">
   <div class="col-12 col-lg-8">
 
-    <div class="card-soft p-3 mb-3">
-      <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
-        <div class="small text-muted">
-          {% if lesson.part_type %}Part: <span class="fw-semibold">{{ lesson.part_type|title }}</span>{% endif %}
-          {% if chapter_title %} · Chapter: <span class="fw-semibold">{{ chapter_title }}</span>{% endif %}
-        </div>
-        <div class="d-flex gap-2 align-items-center">
-          <span id="done-{{ lesson_id }}">
-            {% include "components/_lesson_done_button.html" with lesson_id=lesson_id is_done=is_done %}
-          </span>
-          <span id="fav-{{ lesson_id }}">
-            {% include "components/_favorite_button.html" with lesson_id=lesson_id is_fav=is_fav %}
-          </span>
-        </div>
-      </div>
-    </div>
-
     {# ---------- Tabs ---------- #}
-    <ul class="nav nav-tabs mb-3">
-      <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" href="#tab-content">📘 Content</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link"
-           data-bs-toggle="tab"
-           href="#tab-questions"
-           hx-get="{% url 'q_panel_questions' %}?lesson_id={{ lesson_id }}"
-           hx-trigger="click"
-           hx-target="#tab-questions"
-           hx-swap="innerHTML"
-           hx-indicator="#qs-loading">
-          ❓ Questions
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link"
-           data-bs-toggle="tab"
-           href="#tab-flashcards"
-           hx-get="{% url 'web_flashcards_panel' lesson_id=lesson_id %}"
-           hx-trigger="click"
-           hx-target="#tab-flashcards"
-           hx-swap="innerHTML"
-           hx-indicator="#fc-loading">
-          🧠 Flashcards
-        </a>
-      </li>
-    </ul>
+    <div class="card shadow-sm border-0 mb-3" style="border-radius: 16px; background: #ffffff;">
+      <div class="card-body p-0">
+        <ul class="nav nav-tabs border-0 p-2" style="background: #f8fafc; border-radius: 16px 16px 0 0;">
+          <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#tab-content">📘 Content</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#tab-questions"
+               hx-get="{% url 'q_panel_questions' %}?lesson_id={{ lesson_id }}"
+               hx-trigger="click"
+               hx-target="#tab-questions"
+               hx-swap="innerHTML"
+               hx-indicator="#qs-loading">
+              ❓ Questions
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#tab-flashcards"
+               hx-get="{% url 'web_flashcards_panel' lesson_id=lesson_id %}"
+               hx-trigger="click"
+               hx-target="#tab-flashcards"
+               hx-swap="innerHTML"
+               hx-indicator="#fc-loading">
+              🧠 Flashcards
+            </a>
+          </li>
+        </ul>
 
-    <div class="tab-content">
-      <div id="tab-content" class="tab-pane fade show active">
+        <div class="tab-content p-3">
+          <div id="tab-content" class="tab-pane fade show active">
         {% if limited %}
           <div class="alert alert-warning mb-3">
             {{ block_msg|default:"Subscription required to view lesson content." }}
           </div>
         {% else %}
           {% if lesson.content %}
-            <div class="card-soft p-3">
-              <div class="d-flex justify-content-end mb-2">
-                <button type="button"
-                        class="btn btn-outline-secondary btn-sm"
-                        id="btn-fullscreen-toggle">
-                  ⤢ Full width
-                </button>
-              </div>
-              <div id="lesson-content" class="lesson-content">{{ lesson.content|safe }}</div>
+            <div class="d-flex justify-content-end mb-3">
+              <button type="button"
+                      class="btn btn-outline-secondary btn-sm"
+                      id="btn-fullscreen-toggle">
+                ⤢ Full width
+              </button>
             </div>
+            <div id="lesson-content" class="lesson-content">{{ lesson.content|safe }}</div>
           {% else %}
             <div class="alert alert-secondary">No content available for this lesson.</div>
           {% endif %}
@@ -159,25 +142,37 @@
         <div id="fc-loading" class="position-absolute top-0 end-0 me-2 mt-2 d-none">
           <span class="spinner-border spinner-border-sm"></span>
         </div>
-        <div class="text-muted small">Click “Flashcards” to load.</div>
-      </div>
+        <div class="text-muted small">Click “Flashcards” to load.</div>          </div>
+        </div>      </div>
     </div>
   </div>
 
   <div class="col-12 col-lg-4">
-    <div class="card-soft p-3">
-      <div class="fw-semibold mb-2">Resources</div>
-      {% if not limited and lesson.pdf %}
-        <a class="btn btn-outline-primary w-100 mb-2" href="{{ lesson.pdf }}" target="_blank" rel="noopener">
-          📄 Open PDF
-        </a>
-      {% else %}
-        <div class="small text-muted">No PDF attached.</div>
-      {% endif %}
+    <div class="card shadow-sm border-0" style="border-radius: 16px; background: #ffffff;">
+      <div class="card-body p-3">
+        <div class="fw-bold mb-3" style="color: #1e293b; font-size: 1rem;">Lesson Info</div>
+        
+        {% if lesson.part_type %}
+          <div class="mb-2 pb-2 border-bottom">
+            <div class="small text-muted mb-1">Part Type</div>
+            <div class="fw-semibold">{{ lesson.part_type|title }}</div>
+          </div>
+        {% endif %}
 
-      {% if subject_id %}
-        <a class="btn btn-outline-secondary w-100 mt-2" href="{% url 'web_materials_home' %}?subject={{ subject_id }}">← Back to subject</a>
-      {% endif %}
+        {% if chapter_title %}
+          <div class="mb-2 pb-2 border-bottom">
+            <div class="small text-muted mb-1">Chapter</div>
+            <div class="fw-semibold">{{ chapter_title }}</div>
+          </div>
+        {% endif %}
+
+        {% if not limited and lesson.pdf %}
+          <div class="small text-muted mb-1">Resource</div>
+          <a class="btn btn-outline-primary w-100 btn-sm" href="{{ lesson.pdf }}" target="_blank" rel="noopener">
+            📄 Download PDF
+          </a>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>

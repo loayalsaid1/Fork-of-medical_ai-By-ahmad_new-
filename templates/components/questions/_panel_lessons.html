@@ -1,5 +1,8 @@
 <div class="card-soft p-3">
-  <h5 class="mb-3">{{ chapter_name|default:"Lessons" }}</h5>
+  <div class="qb-title lessons mb-3">
+    <span class="accent"></span>
+    <h5 class="m-0">{{ chapter_name|default:"Lessons" }}</h5>
+  </div>
 
   {% if lessons %}
     <div class="list-group list-group-flush small">
@@ -14,8 +17,4 @@
   {% else %}
     <p class="text-muted mb-0">No lessons.</p>
   {% endif %}
-</div>
-<div class="qb-title lessons mb-3">
-  <span class="accent"></span>
-  <h5 class="m-0">Lessons</h5>
 </div>

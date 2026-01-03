@@ -1,36 +1,46 @@
 <!-- {# templates/components/flashcards/_panel_lessons.html
-   expects: chapter_id, subject_id, subject_name, chapter_name, lessons #} -->
+   expects: chapter_id, subject_id, subject_name, chapter_name, module_name, semester_name, lessons #} -->
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="fc-title lessons">
-    <span class="accent"></span>
-    <h5 class="m-0">
-      {{ subject_name }}{% if chapter_name %} – {{ chapter_name }}{% endif %}
-    </h5>
-  </div>
-  <button class="btn btn-link btn-sm"
-          hx-get="{% url 'fc_panel_chapters' %}?subject_id={{ subject_id }}&subject_name={{ subject_name|urlencode }}"
-          hx-target="#fc-main-panel"
-          hx-swap="innerHTML"
-          hx-indicator="#fc-main-spin">
-    ← Back to chapters
-  </button>
+<div class="fc-breadcrumb">
+  <span class="fc-breadcrumb-item">
+    {% if semester_name %}
+      <span>{{ semester_name }}</span>
+      <span class="fc-breadcrumb-separator">/</span>
+    {% endif %}
+    {% if module_name %}
+      <span>{{ module_name }}</span>
+      <span class="fc-breadcrumb-separator">/</span>
+    {% endif %}
+    <span>{{ subject_name }}</span>
+    {% if chapter_name %}
+      <span class="fc-breadcrumb-separator">/</span>
+      <span class="fc-breadcrumb-current">{{ chapter_name }}</span>
+    {% endif %}
+  </span>
 </div>
 
-<div class="list-group list-group-flush small fc-list">
+<div class="mb-3">
+  <h5 class="mb-0" style="font-weight: 700; color: #111827;">Select Lesson</h5>
+</div>
+
+<div class="list-group fc-list">
   {% if lessons %}
     {% for l in lessons %}
       <button
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-        hx-get="{% url 'fc_panel_flashcards' %}?lesson_id={{ l.id }}&subject_id={{ subject_id }}"
+        hx-get="{% url 'fc_panel_flashcards' %}?lesson_id={{ l.id }}&lesson_name={{ l.title|urlencode }}&subject_id={{ subject_id }}&subject_name={{ subject_name|urlencode }}&chapter_name={{ chapter_name|urlencode }}&module_name={{ module_name|urlencode }}&semester_name={{ semester_name|urlencode }}"
         hx-target="#fc-main-panel"
         hx-swap="innerHTML"
         hx-indicator="#fc-main-spin">
         <span>{{ l.title }}</span>
-        <span class="badge fc-badge">flashcards</span>
+        <span class="fc-badge fc-badge-count">🎴</span>
       </button>
     {% endfor %}
   {% else %}
-    <div class="alert alert-secondary mb-0">No lessons for this chapter.</div>
+    <div class="fc-empty">
+      <div class="fc-empty-icon">📝</div>
+      <div class="fc-empty-title">No Lessons Available</div>
+      <div class="fc-empty-text">This chapter doesn't have any lessons yet.</div>
+    </div>
   {% endif %}
 </div>

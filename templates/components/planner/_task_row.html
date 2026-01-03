@@ -1,27 +1,35 @@
 {# t = {id, title, due_date, is_done} #}
-<div class="list-group-item d-flex align-items-center justify-content-between gap-2">
-  <div class="d-flex align-items-center gap-2">
+<div class="list-group-item d-flex align-items-start justify-content-between gap-3 border-0 border-bottom py-3" style="background: transparent;">
+  <div class="d-flex align-items-start gap-3 flex-grow-1">
     <input
       type="checkbox"
+      class="form-check-input mt-1"
+      style="cursor: pointer;"
       {% if t.is_done %}checked{% endif %}
       hx-post="{% url 'web_planner_toggle' t.id %}"
       hx-target="#planner-tasks"
-      hx-swap="innerHTML">
-    <div>
-      <div class="{% if t.is_done %}text-decoration-line-through text-muted{% endif %}">
+      hx-swap="innerHTML"
+      hx-include="#date-filter">
+    <div class="flex-grow-1">
+      <div class="{% if t.is_done %}text-decoration-line-through text-muted{% else %}fw-semibold{% endif %}" style="{% if not t.is_done %}color: #1e293b;{% endif %}">
         {{ t.title }}
       </div>
       {% if t.due_date %}
-        <div class="small text-muted">{{ t.due_date }}</div>
+        <div class="small text-muted mt-1">
+          <span class="badge bg-light text-muted border">📅 {{ t.due_date }}</span>
+        </div>
       {% endif %}
     </div>
   </div>
   <button
     class="btn btn-sm btn-outline-danger"
-    hx-post="{% url 'web_planner_delete' t.id %}"
-    hx-headers='{"X-HTTP-Method-Override": "DELETE"}'
+    style="min-width: 32px;"
+    hx-delete="{% url 'web_planner_delete' t.id %}"
     hx-target="#planner-tasks"
-    hx-swap="innerHTML">
+    hx-swap="innerHTML"
+    hx-include="#date-filter"
+    hx-confirm="Delete this task?"
+    title="Delete task">
     ×
   </button>
 </div>

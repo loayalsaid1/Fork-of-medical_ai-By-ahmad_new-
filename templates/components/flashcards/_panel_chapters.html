@@ -1,32 +1,40 @@
 <!-- {# templates/components/flashcards/_panel_chapters.html #} -->
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="fc-title chapters">
-    <span class="accent"></span>
-    <h5 class="m-0">{{ subject_name }}</h5>
-  </div>
-  <button class="btn btn-link btn-sm"
-          hx-get="{% url 'fc_panel_subjects' %}?module_id={{ request.GET.module_id|default:'' }}&module_name={{ request.GET.module_name|default:''|urlencode }}"
-          hx-target="#fc-main-panel"
-          hx-swap="innerHTML"
-          hx-indicator="#fc-main-spin">
-    ← Back to subjects
-  </button>
+<div class="fc-breadcrumb">
+  <span class="fc-breadcrumb-item">
+    {% if semester_name %}
+      <span>{{ semester_name }}</span>
+      <span class="fc-breadcrumb-separator">/</span>
+    {% endif %}
+    {% if module_name %}
+      <span>{{ module_name }}</span>
+      <span class="fc-breadcrumb-separator">/</span>
+    {% endif %}
+    <span class="fc-breadcrumb-current">{{ subject_name }}</span>
+  </span>
 </div>
 
-<div class="list-group list-group-flush small fc-list">
+<div class="mb-3">
+  <h5 class="mb-0" style="font-weight: 700; color: #111827;">Select Chapter</h5>
+</div>
+
+<div class="list-group fc-list">
   {% if chapters %}
     {% for c in chapters %}
       <button
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-        hx-get="{% url 'fc_panel_lessons' %}?chapter_id={{ c.id }}&subject_id={{ subject_id }}&subject_name={{ subject_name|urlencode }}&chapter_name={{ c.title|urlencode }}"
+        hx-get="{% url 'fc_panel_lessons' %}?chapter_id={{ c.id }}&subject_id={{ subject_id }}&subject_name={{ subject_name|urlencode }}&chapter_name={{ c.title|urlencode }}&module_name={{ module_name|urlencode }}&semester_name={{ semester_name|urlencode }}"
         hx-target="#fc-main-panel"
         hx-swap="innerHTML"
         hx-indicator="#fc-main-spin">
         <span>{{ c.title }}</span>
-        <span class="badge fc-badge">lessons</span>
+        <span class="fc-badge">›</span>
       </button>
     {% endfor %}
   {% else %}
-    <div class="alert alert-secondary mb-0">No chapters for this subject.</div>
+    <div class="fc-empty">
+      <div class="fc-empty-icon">📖</div>
+      <div class="fc-empty-title">No Chapters Available</div>
+      <div class="fc-empty-text">This subject doesn't have any chapters yet.</div>
+    </div>
   {% endif %}
 </div>

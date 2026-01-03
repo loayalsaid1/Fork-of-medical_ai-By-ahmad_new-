@@ -1,37 +1,68 @@
-{# expects: lesson_id, lesson_name, admin_cards, my_cards, subject_id (optional), can_create_flashcards #}
+{# expects: lesson_id, lesson_name, admin_cards, my_cards, subject_id, subject_name, chapter_name, module_name, semester_name, can_create_flashcards #}
 
 <div id="fc-panel">
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h5 class="mb-0">Flashcards</h5>
-      <small class="text-muted">
-        Lesson: {{ lesson_name }}
-      </small>
-    </div>
-    {% if subject_id %}
-      <button class="btn btn-link btn-sm"
-              hx-get="{% url 'fc_panel_lessons' %}?subject_id={{ subject_id }}"
-              hx-target="#fc-main-panel"
-              hx-swap="innerHTML">
-        ← Back to lessons
-      </button>
-    {% endif %}
+  <!-- Breadcrumb -->
+  <div class="fc-breadcrumb">
+    <span class="fc-breadcrumb-item">
+      {% if semester_name %}
+        <span>{{ semester_name }}</span>
+        <span class="fc-breadcrumb-separator">/</span>
+      {% endif %}
+      {% if module_name %}
+        <span>{{ module_name }}</span>
+        <span class="fc-breadcrumb-separator">/</span>
+      {% endif %}
+      {% if subject_name %}
+        <span>{{ subject_name }}</span>
+        <span class="fc-breadcrumb-separator">/</span>
+      {% endif %}
+      {% if chapter_name %}
+        <span>{{ chapter_name }}</span>
+        <span class="fc-breadcrumb-separator">/</span>
+      {% endif %}
+      <span class="fc-breadcrumb-current">{{ lesson_name }}</span>
+    </span>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-3">
+    <h5 class="mb-1" style="font-weight: 700; color: #111827;">📚 {{ lesson_name }}</h5>
+    <small class="text-muted">Review and manage flashcards for this lesson</small>
   </div>
 
   {# -------- Tabs: Admin / My flashcards -------- #}
-  <ul class="nav nav-pills fc-tabs mb-3 small" id="fc-tabs">
+  <ul class="nav nav-pills mb-4 small" id="fc-tabs" style="border-bottom: 2px solid #e5e7eb; padding-bottom: 0;">
     <li class="nav-item">
-      <button class="nav-link active" type="button" data-target="#fc-admin">
-        Admin deck
+      <button class="nav-link active" type="button" data-target="#fc-admin" style="border-radius: 8px 8px 0 0; font-weight: 600; padding: 0.5rem 1rem; border: none; background: transparent; color: #6b7280;">
+        🎓 Admin Deck
+        {% if admin_cards %}
+          <span class="badge" style="background: #e0e7ff; color: #4f46e5; margin-left: 0.25rem;">{{ admin_cards|length }}</span>
+        {% endif %}
       </button>
     </li>
     <li class="nav-item">
-      <button class="nav-link" type="button" data-target="#fc-mine">
-        My flashcards
+      <button class="nav-link" type="button" data-target="#fc-mine" style="border-radius: 8px 8px 0 0; font-weight: 600; padding: 0.5rem 1rem; border: none; background: transparent; color: #6b7280;">
+        ✏️ My Cards
+        {% if my_cards %}
+          <span class="badge" style="background: #dbeafe; color: #1e40af; margin-left: 0.25rem;">{{ my_cards|length }}</span>
+        {% endif %}
       </button>
     </li>
   </ul>
+
+  <style>
+    #fc-tabs .nav-link.active {
+      background: #fff !important;
+      color: #4f46e5 !important;
+      border-bottom: 3px solid #4f46e5;
+      margin-bottom: -2px;
+    }
+    #fc-tabs .nav-link:hover {
+      background: #f9fafb !important;
+      color: #374151 !important;
+    }
+  </style>
 
   <div class="tab-content">
 
@@ -76,7 +107,7 @@
           <button type="button" class="fc-arrow fc-next" aria-label="Next">›</button>
         </div>
       {% else %}
-        <div class="alert alert-secondary mb-0 small">
+        <div class="alert alert-secondary mb-0 small fc-empty-msg" id="fc-admin-empty">
           No admin flashcards for this lesson.
         </div>
       {% endif %}
@@ -109,13 +140,13 @@
                       placeholder="Back / answer..."></textarea>
           </div>
 
-          <div class="col-6 col-lg-1">
+          <div class="col-12 col-lg-2">
             <label class="form-label">Order</label>
-            <input type="number" name="order" class="form-control" value="1" min="1">
+            <input type="number" name="order" class="form-control fc-order-input w-100" id="fc-mine-order" value="1" min="1">
           </div>
 
-          <div class="col-6 col-lg-1 d-flex align-items-end">
-            <button class="btn btn-primary w-100 fc-add-btn">
+          <div class="col-12 col-lg-auto d-flex align-items-end">
+            <button class="btn btn-primary fc-add-btn">
               <span id="fc-add-spin"
                     class="spinner-border spinner-border-sm htmx-indicator"
                     role="status"></span>
@@ -140,7 +171,7 @@
                 {% include "components/flashcards/_my_flashcard_item.html" with fc=fc owner_type="user" %}
               {% endfor %}
             {% else %}
-              <div class="alert alert-secondary small mb-0">
+              <div class="alert alert-secondary small mb-0 fc-empty-msg" id="fc-mine-empty">
                 You don't have any personal flashcards for this lesson yet.
               </div>
             {% endif %}
@@ -346,17 +377,110 @@
   document.addEventListener('DOMContentLoaded', rebindAll);
   rebindAll();
 
+  // ===== Manage empty state messages =====
+  function updateEmptyState(track, emptyMsgId, emptyText){
+    if (!track) return;
+    const slides = track.querySelectorAll('.fc-slide');
+    const emptyMsg = track.querySelector('.fc-empty-msg');
+    
+    if (slides.length === 0) {
+      // No cards - ensure empty message exists
+      if (!emptyMsg) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-secondary small mb-0 fc-empty-msg';
+        alert.id = emptyMsgId;
+        alert.textContent = emptyText;
+        track.appendChild(alert);
+      }
+    } else {
+      // Has cards - remove empty message if it exists
+      if (emptyMsg) {
+        emptyMsg.remove();
+      }
+    }
+    
+    // Update slider arrows visibility
+    const slider = track.closest('.fc-slider');
+    if (slider) {
+      const arrows = slider.querySelectorAll('.fc-arrow');
+      arrows.forEach(arrow => {
+        arrow.style.visibility = slides.length > 0 ? 'visible' : 'hidden';
+      });
+    }
+  }
+
+  function checkAllTracks(){
+    const adminTrack = document.getElementById('fc-admin-track');
+    const mineTrack = document.getElementById('fc-mine-track');
+    
+    if (adminTrack) {
+      updateEmptyState(adminTrack, 'fc-admin-empty', 'No admin flashcards for this lesson.');
+    }
+    if (mineTrack) {
+      updateEmptyState(mineTrack, 'fc-mine-empty', "You don't have any personal flashcards for this lesson yet.");
+      updateOrderField('fc-mine-order', mineTrack);
+    }
+  }
+
+  // ===== Auto-update order field =====
+  function updateOrderField(inputId, track){
+    const input = document.getElementById(inputId);
+    if (!input || !track) return;
+    
+    const slides = track.querySelectorAll('.fc-slide');
+    const nextOrder = slides.length > 0 ? Math.max(...Array.from(slides).map(slide => {
+      const orderBadge = slide.querySelector('.badge');
+      const text = orderBadge?.textContent || '0';
+      const num = parseInt(text.replace('#', '')) || 0;
+      return num;
+    })) + 1 : 1;
+    
+    input.value = nextOrder;
+  }
+
+  // Use MutationObserver to watch for changes in tracks
+  const panel = document.getElementById('fc-panel');
+  if (panel) {
+    const observer = new MutationObserver((mutations) => {
+      let trackChanged = false;
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && 
+            (mutation.target.id === 'fc-admin-track' || mutation.target.id === 'fc-mine-track')) {
+          trackChanged = true;
+        }
+      });
+      if (trackChanged) {
+        checkAllTracks();
+      }
+    });
+    
+    observer.observe(panel, {
+      childList: true,
+      subtree: true
+    });
+  }
+
   document.body.addEventListener('htmx:afterSwap', (e)=>{
     const panel = document.getElementById('fc-panel');
     if (!panel) return;
-    if (e.target === panel || panel.contains(e.target)){
+    
+    const isInPanel = e.target === panel || panel.contains(e.target);
+    
+    if (isInPanel){
       rebindAll();
       panel.querySelectorAll('.fc-slider').forEach(s=>{ if (s._reLayout) s._reLayout(); });
+      checkAllTracks();
     }
+    
     if (e.target.id === 'fc-mine-track'){
       const form = panel.querySelector('form');
       if (form) form.reset();
     }
+  });
+  
+  // Initial check on page load
+  document.addEventListener('DOMContentLoaded', ()=>{
+    checkAllTracks();
   });
 })();
 </script>

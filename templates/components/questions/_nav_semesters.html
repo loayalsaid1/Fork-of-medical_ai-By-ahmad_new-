@@ -1,6 +1,9 @@
+<div class="qb-title semesters mb-2">
+  <span class="accent"></span>
+  <h6 class="m-0">Semesters</h6>
+</div>
+
 <div class="list-group list-group-flush small">
-  <div class="list-group list-group-flush small">
- 
   {% for s in semesters %}
     <button
       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
@@ -14,9 +17,4 @@
   {% empty %}
     <div class="text-muted small">No semesters.</div>
   {% endfor %}
- 
-</div>
-<div class="qb-title semesters mb-2">
-  <span class="accent"></span>
-  <h6 class="m-0">Semesters</h6>
 </div>

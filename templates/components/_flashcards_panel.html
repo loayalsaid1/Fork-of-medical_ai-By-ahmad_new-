@@ -30,13 +30,13 @@
                 placeholder="Back / answer..."></textarea>
     </div>
 
-    <div class="col-6 col-lg-1">
+    <div class="col-12 col-lg-2">
       <label class="form-label">Order</label>
-      <input type="number" name="order" class="form-control" value="1" min="1">
+      <input type="number" name="order" class="form-control fc-order-input" id="fc-lesson-order" value="1" min="1" style="width:100%;">
     </div>
 
-    <div class="col-6 col-lg-1 d-flex align-items-end">
-        <button class="btn btn-primary w-100 fc-add-btn">
+    <div class="col-12 col-lg-auto d-flex align-items-end">
+        <button class="btn btn-primary fc-add-btn">
           <span id="fc-add-spin" class="spinner-border spinner-border-sm htmx-indicator" role="status"></span>
           Add
         </button>
@@ -75,7 +75,7 @@
               {% include "components/flashcards/_my_flashcard_item.html" with fc=fc %}
             {% endfor %}
           {% else %}
-            <div class="alert alert-secondary mb-0">No flashcards yet.</div>
+            <div class="alert alert-secondary mb-0 fc-empty-msg" id="fc-lesson-empty">No flashcards yet.</div>
           {% endif %}
         </div>
       </div>
@@ -482,21 +482,107 @@
   // FIX: ننده فورًا علشان السلايدر يشتغل أول تحميل
   rebindAll();
 
+  // = ==== Manage empty state messages =====
+  function updateEmptyState(track, emptyMsgId, emptyText){
+    if (!track) return;
+    const slides = track.querySelectorAll('.fc-slide');
+    const emptyMsg = track.querySelector('.fc-empty-msg');
+    
+    if (slides.length === 0) {
+      // No cards - ensure empty message exists
+      if (!emptyMsg) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-secondary mb-0 fc-empty-msg';
+        alert.id = emptyMsgId;
+        alert.textContent = emptyText;
+        track.appendChild(alert);
+      }
+    } else {
+      // Has cards - remove empty message if it exists
+      if (emptyMsg) {
+        emptyMsg.remove();
+      }
+    }
+    
+    // Update slider arrows visibility
+    const slider = track.closest('.fc-slider');
+    if (slider) {
+      const arrows = slider.querySelectorAll('.fc-arrow');
+      arrows.forEach(arrow => {
+        arrow.style.visibility = slides.length > 0 ? 'visible' : 'hidden';
+      });
+    }
+  }
+
+  function checkLessonTrack(){
+    const lessonTrack = document.getElementById('fc-lesson-track');
+    if (lessonTrack) {
+      updateEmptyState(lessonTrack, 'fc-lesson-empty', 'No flashcards yet.');
+      updateOrderField('fc-lesson-order', lessonTrack);
+    }
+  }
+
+  // ===== Auto-update order field =====
+  function updateOrderField(inputId, track){
+    const input = document.getElementById(inputId);
+    if (!input || !track) return;
+    
+    const slides = track.querySelectorAll('.fc-slide');
+    const nextOrder = slides.length > 0 ? Math.max(...Array.from(slides).map(slide => {
+      const orderBadge = slide.querySelector('.badge');
+      const text = orderBadge?.textContent || '0';
+      const num = parseInt(text.replace('#', '')) || 0;
+      return num;
+    })) + 1 : 1;
+    
+    input.value = nextOrder;
+  }
+
+  // Use MutationObserver to watch for changes in the track
+  const panel = document.getElementById('fc-panel');
+  if (panel) {
+    const observer = new MutationObserver((mutations) => {
+      let trackChanged = false;
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && mutation.target.id === 'fc-lesson-track') {
+          trackChanged = true;
+        }
+      });
+      if (trackChanged) {
+        checkLessonTrack();
+      }
+    });
+    
+    observer.observe(panel, {
+      childList: true,
+      subtree: true
+    });
+  }
+
   document.body.addEventListener('htmx:afterSwap', (e)=>{
     const panel = document.getElementById('fc-panel');
     if (!panel) return;
-    if (e.target === panel || panel.contains(e.target)) {
+    
+    const isInPanel = e.target === panel || panel.contains(e.target);
+    
+    if (isInPanel) {
       rebindAll();
       panel.querySelectorAll('.fc-slider').forEach(s=>{
         if (s._reLayout) s._reLayout();
       });
+      checkLessonTrack();
+      
+      // Reset form after adding
+      if (e.target.id === 'fc-lesson-track') {
+        const form = panel.querySelector('form');
+        if (form) form.reset();
+      }
     }
-
-    // تصفير الفورم بعد إضافة بطاقة جديدة إلى مسار الدرس
-    if (e.target.id === 'fc-lesson-track') {
-      const form = panel.querySelector('form');
-      if (form) form.reset();
-    }
+  });
+  
+  // Initial check on page load
+  document.addEventListener('DOMContentLoaded', ()=>{
+    checkLessonTrack();
   });
 })();
 </script>
@@ -582,4 +668,3 @@
     color:#fff !important;
   }
 </style>
-
