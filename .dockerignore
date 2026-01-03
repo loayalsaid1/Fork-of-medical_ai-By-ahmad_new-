@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+
+
+# Django
+*.log
+/staticfiles/
+/media/
+/uploads/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+ARCHITECTURE.md
+DOCUMENTATION.md
+NAVIGATION_GUIDE.md
+my_identified_bugs.md
+
+.pytest_cache/
