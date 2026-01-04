@@ -1,6 +1,8 @@
 venv
 
 .env
+.env.production
+
 /media/
 
 __pycache__/
@@ -10,3 +12,4 @@ __pycache__/
 staticfiles/
 
 my_identified_bugs.md
+
