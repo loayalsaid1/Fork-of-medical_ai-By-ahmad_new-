@@ -115,7 +115,9 @@ def create_plans():
 def update_admin_user(premium_plan):
     """Update admin user with premium subscription"""
     try:
-        admin = User.objects.get(username='username')
+        # Use environment variable TEST_ADMIN_USERNME and default to testAdmin
+        test_admin_username = os.environ.get('TEST_ADMIN_USERNAME', 'username')
+        admin = User.objects.get(username=test_admin_username)
         admin.study_year = 'y3'  # Year 3
         admin.plan = 'premium'
         admin.is_active_subscription = True
